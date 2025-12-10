@@ -1,0 +1,62 @@
+datasource db {
+  provider = "mysql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  BARBER
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointmentsAsClient Appointment[] @relation("ClientAppointments")
+  appointmentsAsBarber Appointment[] @relation("BarberAppointments")
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal
+  duration    Int      // in minutes
+  
+  appointments Appointment[]
+}
+
+model Appointment {
+  id        Int               @id @default(autoincrement())
+  date      DateTime
+  status    AppointmentStatus @default(PENDING)
+  
+  clientId  Int
+  client    User     @relation("ClientAppointments", fields: [clientId], references: [id])
+  
+  barberId  Int?
+  barber    User?    @relation("BarberAppointments", fields: [barberId], references: [id])
+  
+  serviceId Int
+  service   Service  @relation(fields: [serviceId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
