@@ -14,8 +14,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1c1c1c;       /* Charcoal Black */
+    --foreground: #f0f0f0;       /* Off-White Text */
+    --surface: #2a2a2a;          /* Lighter Charcoal for cards */
+    --accent: #d4af37;           /* Gold Accent */
+    --text-muted: #a0a0a0;       /* Muted Gray Text */
   }
 }
 
