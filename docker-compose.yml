@@ -1,25 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  db:
-    image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
-    container_name: barberia_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: barberia_db
-      MYSQL_USER: barber_user
-      MYSQL_PASSWORD: barber_password
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data_v2:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
   backend:
     build:
       context: ./backend
@@ -27,13 +8,12 @@ services:
     container_name: barberia_backend
     restart: always
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
       NODE_ENV: production
-      DATABASE_URL: mysql://barber_user:barber_password@db:3306/barberia_db
-    depends_on:
-      db:
-        condition: service_healthy
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3001
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -49,8 +29,6 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
     depends_on:
       - backend
-
-volumes:
-  db_data_v2:

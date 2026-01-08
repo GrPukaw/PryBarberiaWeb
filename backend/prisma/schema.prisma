@@ -1,5 +1,6 @@
 datasource db {
-  provider = "mysql"
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 generator client {
@@ -20,7 +21,7 @@ enum AppointmentStatus {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   password  String
   name      String
@@ -34,27 +35,30 @@ model User {
 }
 
 model Service {
-  id          Int      @id @default(autoincrement())
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String?
-  price       Decimal
-  duration    Int      // in minutes
+  price       Float
+  duration    Int     // duration in minutes
+  isActive    Boolean @default(true)
+  imageUrl    String?
   
   appointments Appointment[]
 }
 
 model Appointment {
-  id        Int               @id @default(autoincrement())
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
   date      DateTime
   status    AppointmentStatus @default(PENDING)
+  notes     String?
   
-  clientId  Int
+  clientId  String   @db.ObjectId
   client    User     @relation("ClientAppointments", fields: [clientId], references: [id])
   
-  barberId  Int?
+  barberId  String?  @db.ObjectId
   barber    User?    @relation("BarberAppointments", fields: [barberId], references: [id])
   
-  serviceId Int
+  serviceId String   @db.ObjectId
   service   Service  @relation(fields: [serviceId], references: [id])
 
   createdAt DateTime @default(now())
